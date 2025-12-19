@@ -1,0 +1,17 @@
+#include <stdio.h>
+#include <string.h>
+
+#define OPENFILE(name) fopen(name, "w")
+
+const char *str = "#include <stdio.h>%c#include <string.h>%c%c#define OPENFILE(name) fopen(name, %cw%c)%c%cconst char *str = %c%s%c;%c%cint main() {%c%cchar nr = %c%c%c;%c%cchar file[] = %cSully_ %c;%c%cfile[6] = nr;%c%cFILE *fptr = OPENFILE(file);%c%cif (!fptr) return (1);%c%cfprintf(fptr,str,10,10,10,34,34,10,10,34,str,34,10,10,10,9,39,nr-1,39,10,9,34,34,10,9,10,9,10,9,10,9,10,9,10,9,10);%c%cfclose(fptr);%c%creturn (0);%c}";
+
+int main() {
+	char nr = '4';
+	char file[] = "Sully_ ";
+	file[6] = nr;
+	FILE *fptr = OPENFILE(file);
+	if (!fptr) return (1);
+	fprintf(fptr,str,10,10,10,34,34,10,10,34,str,34,10,10,10,9,39,nr-1,39,10,9,34,34,10,9,10,9,10,9,10,9,10,9,10,9,10);
+	fclose(fptr);
+	return (0);
+}
