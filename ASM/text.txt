@@ -1,0 +1,20 @@
+global main
+extern printf
+
+section .text
+MAIN
+; one comment
+push rbp
+move rbp, rsp
+lea rdi, [rel text]
+move rsi, 10
+mov rdx,34
+mov r8, 37
+lea rcx, [rel text]
+xor eax, eax
+call printf wrt ..plt
+leave
+ret
+
+section .data
+text db "global main%1$cextern printf%1$c%1$csection .text%1$cMAIN%1$c; one comment%1$cpush rbp%1$cmove rbp, rsp%1$clea rdi, [rel text]%1$cmove rsi, 10%1$cmov rdx,34%1$cmov r8, 37%1$clea rcx, [rel text]%1$cxor eax, eax%1$ccall printf wrt ..plt%1$cleave%1$cret%1$c%1$csection .data%1$ctext db %2$c%3$s%2$c"

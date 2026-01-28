@@ -1,0 +1,108 @@
+Data movement
+| Command            | Betekenis              | Uitleg                                                                                       |
+| ------------------ | ---------------------- | -------------------------------------------------------------------------------------------- |
+| `mov dest, src`    | Move                   | Kopieert data van `src` naar `dest` (zonder `src` te verwijderen)                            |
+| `lea dest, [addr]` | Load Effective Address | Laadt het **adres** van een geheugenlocatie in `dest` (geen data zelf, maar pointer)         |
+| `push reg/mem`     | Push                   | Plaatst een register of waarde op de stack                                                   |
+| `pop reg`          | Pop                    | Haalt de bovenste waarde van de stack en zet in register                                     |
+| `xor reg, reg`     | Exclusive OR           | Bitwise XOR; vaak gebruikt als snelle manier om een register op 0 te zetten (`xor eax, eax`) |
+| `inc reg`          | Increment              | Verhoogt de waarde in een register met 1                                                     |
+| `dec reg`          | Decrement              | Verlaagt de waarde in een register met 1                                                     |
+
+Arithmetic & Logic
+| Command                       | Betekenis        | Uitleg                                                  |     |
+| ----------------------------- | ---------------- | ------------------------------------------------------- | --- |
+| `add dest, src`               | Addition         | Dest = Dest + Src                                       |     |
+| `sub dest, src`               | Subtract         | Dest = Dest - Src                                       |     |
+| `imul dest, src`              | Integer Multiply | Signed integer vermenigvuldiging                        |     |
+| `idiv reg/mem`                | Integer Divide   | Signed integer deling; quotient in `rax`, rest in `rdx` |     |
+| `and dest, src`               | Bitwise AND      | Dest = Dest & Src                                       |     |
+| `or dest, src`                | Bitwise OR       | Dest = Dest                                             | Src |
+| `not reg`                     | Bitwise NOT      | Inverteert alle bits in register                        |     |
+| `shl dest, n` / `sal dest, n` | Shift Left       | Vermenigvuldigt bits met 2^n                            |     |
+| `shr dest, n`                 | Shift Right      | Verdeelt bits door 2^n                                  |     |
+
+Control flow / jumps
+| Command                   | Betekenis                    | Uitleg                                                           |
+| ------------------------- | ---------------------------- | ---------------------------------------------------------------- |
+| `jmp label`               | Jump                         | Onvoorwaardelijk naar label springen                             |
+| `je label` / `jz label`   | Jump if equal / zero         | Springt als zero flag (ZF) = 1                                   |
+| `jne label` / `jnz label` | Jump if not equal / not zero | Springt als ZF = 0                                               |
+| `call label`              | Call                         | Springt naar functie/subroutine en pusht return address op stack |
+| `ret`                     | Return                       | Keert terug van functie naar address op stack                    |
+| `loop label`              | Loop                         | Vermindert `rcx` en springt als niet nul                         |
+
+Stack / function prologue & epilogue
+| Command        | Betekenis         | Uitleg                                    |
+| -------------- | ----------------- | ----------------------------------------- |
+| `push rbp`     | Save base pointer | Bewaart de oude frame pointer             |
+| `mov rbp, rsp` | Set frame pointer | Nieuwe functie‑frame starten              |
+| `leave`        | Function epilogue | Equivalent aan `mov rsp, rbp` + `pop rbp` |
+| `ret`          | Return            | Springt terug naar caller                 |
+
+System / calls / special
+| Command    | Betekenis      | Uitleg                                    |
+| ---------- | -------------- | ----------------------------------------- |
+| `syscall`  | System call    | Roept Linux kernel op met nummer in `rax` |
+| `int 0x80` | Legacy syscall | Oudere Linux syscall interrupt            |
+| `nop`      | No operation   | Doet niks; vaak gebruikt voor padding     |
+| `hlt`      | Halt           | Stop processor (kernel mode)              |
+
+| syscall		| ID	| ARG1		| ARG2		| ARG3
+| ------------- | ----- | --------- | --------- | --------- |
+| 'sys_red'		| 0		| #fd		| $buffer	| #count
+| 'sys_write'	| 1		| #fd		| $buffer	| #count
+| 'sys_open'	| 2		| $filename	| #flags	| #mode
+| 'sys_close'	| 3		| #fd		|
+| 'sys_exit'	| 60	| #errorcode
+$ memory adress to the register
+
+Registers (x86-64)
+| Register     | Betekenis / Gebruik                         |
+| ------------ | ------------------------------------------- |
+| `rax`        | Accumulator / return value / syscall nummer |
+| `rbx`        | Base register (callee-saved)                |
+| `rcx`        | Counter / 4e argument / shift count         |
+| `rdx`        | Data register / 3e argument                 |
+| `rsi`        | Source index / 2e argument                  |
+| `rdi`        | Destination index / 1e argument             |
+| `rbp`        | Base pointer / frame pointer                |
+| `rsp`        | Stack pointer                               |
+| `r8` … `r15` | Extra registers / 5e tot 12e argumenten     |
+
+Memory / addressing modes
+| Syntax        | Betekenis                         |
+| ------------- | --------------------------------- |
+| `[rax]`       | Memory op address in `rax`        |
+| `[rbp-8]`     | Local variable op stack           |
+| `[rel label]` | RIP-relative addressing, PIE-safe |
+| `rax`         | Direct register (geen geheugen)   |
+
+ASCII / data
+| Directive       | Betekenis                    |
+| --------------- | ---------------------------- |
+| `db`            | Define byte(s)               |
+| `dw`            | Define word (2 bytes)        |
+| `dd`            | Define double word (4 bytes) |
+| `dq`            | Define quad word (8 bytes)   |
+| `equ`           | Equate / constant definieren |
+| `section .data` | Data segment (read/write)    |
+| `section .text` | Code segment (executable)    |
+
+Flags
+| Flag  | Betekenis           |
+| ----- | ------------------- |
+| CF	| Carry
+| PF	| parity
+| ZF 	| Zero
+| SF 	| Sign 
+| OF 	| Overflow
+| AF 	| Adjust 
+| IF	| Interrupt Enabled
+
+Pointers == register == to data adress
+Pointername		| Meaning			| Description
+---------------	| ------------------| ---------------
+rip(eip, ip)	| index pointer		| Points to next adddress to be executed in the control flow 
+rsp (esp, sp)	| stack pointer		| Points to the top address of the stack 
+rbp (ebp, bp)	| stack base pointer| Points to the bottom of the stack
