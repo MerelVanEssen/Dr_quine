@@ -1,20 +1,103 @@
-global main
-extern printf
-
-section .text
-MAIN
-; one comment
-push rbp
-move rbp, rsp
-lea rdi, [rel text]
-move rsi, 10
-mov rdx,34
-mov r8, 37
-lea rcx, [rel text]
-xor eax, eax
-call printf wrt ..plt
-leave
-ret
-
-section .data
-text db "global main%1$cextern printf%1$c%1$csection .text%1$cMAIN%1$c; one comment%1$cpush rbp%1$cmove rbp, rsp%1$clea rdi, [rel text]%1$cmove rsi, 10%1$cmov rdx,34%1$cmov r8, 37%1$clea rcx, [rel text]%1$cxor eax, eax%1$ccall printf wrt ..plt%1$cleave%1$cret%1$c%1$csection .data%1$ctext db %2$c%3$s%2$c"
+text db "global main%1$c
+extern system%1$c
+extern fopen%1$c
+extern fprintf%1$c
+extern fclose%1$c
+%1$c
+%%macro OPEN_FILE 2%1$c
+lea rdi, [rel %%1]%1$c
+lea rsi, [rel %%2]%1$c
+call fopen wrt ..plt%1$c
+mov rbx, rax%1$c
+%%endmacro%1$c
+%1$c
+%%macro WRITE_CHAR 0%1$c
+mov al, [rel start]%1$c
+dec al%1$c
+add al, '0'%1$c
+movzx rdx, al%1$c
+lea rsi, [rel format_char]%1$c
+mov rdi, rbx%1$c
+xor eax, eax%1$c
+call fprintf wrt ..plt%1$c
+%%endmacro%1$c
+%1$c
+%%macro WRITE_TEXT 3%1$c
+mov rdi, rbx%1$c
+lea rsi, [rel %%1]%1$c
+mov edx, %%2%1$c
+mov ecx, %%3%1$c
+lea r8, [rel %%1]%1$c
+xor eax, eax%1$c
+call fprintf wrt ..plt%1$c
+%%endmacro%1$c
+%1$c
+%%macro FILL 2%1$c
+lea rbx, [rel %%1]%1$c
+lea rcx, [rel %%2]%1$c
+mov dl, [rel start]%1$c
+add dl, 48%1$c
+mov rsi, rcx%1$c
+mov rdi, rbx%1$c
+%%%%copy_loop:%1$c
+mov al, [rcx]%1$c
+cmp al, 'X'%1$c
+jne %%%%copy_normal%1$c
+mov al, dl%1$c
+%%%%copy_normal:%1$c
+mov [rbx], al%1$c
+cmp byte [rcx], 0%1$c
+je %%%%done%1$c
+inc rcx%1$c
+inc rbx%1$c
+jmp %%%%copy_loop%1$c
+%%%%done:%1$c
+mov byte [rbx], 0%1$c
+%%endmacro%1$c
+%1$c
+section .text%1$c
+main:%1$c
+FILL compile_bss, compile_data%1$c
+FILL run_bss, run_data%1$c
+FILL filename_bss, filename_data%1$c
+FILL chmod_bss, chmod_data%1$c
+sub rsp, 8%1$c
+OPEN_FILE filename_bss, mode%1$c
+test rbx, rbx%1$c
+je .done%1$c
+WRITE_TEXT text, 10, 34%1$c
+WRITE_CHAR%1$c
+cmp eax, 0%1$c
+jl .done%1$c
+mov rdi, rbx%1$c
+call fclose wrt ..plt%1$c
+mov al, [rel start]%1$c
+cmp al, 0%1$c
+je .done%1$c
+lea rdi, [rel compile_bss]%1$c
+call system wrt ..plt%1$c
+test eax, eax%1$c
+je .done%1$c
+lea rdi, [rel chmod_bss]%1$c
+call system wrt ..plt%1$c
+lea rdi, [rel run_bss]%1$c
+call system wrt ..plt%1$c
+.done:%1$c
+add rsp, 8%1$c
+ret%1$c
+%1$c
+section .bss%1$c
+filename_bss resb 10%1$c
+compile_bss resb 65%1$c
+run_bss resb 10%1$c
+chmod_bss resb 18%1$c
+%1$c
+section .data%1$c
+mode db %2$cw%2$c,0%1$c
+filename_data db %2$cSully_X.s%2$c,0%1$c
+compile_data db %2$cnasm -f elf64 Sully_X.s -o Sully_X.o && gcc Sully_X.o -o Sully_X%2$c,0%1$c
+run_data db %2$c./Sully_X%2$c,0%1$c
+chmod_data db %2$cchmod 777 Sully_X%2$c,0%1$c
+text db %2$c%3$s%2$c,0%1$c
+format_char db %2$c%%c%2$c,0%1$c
+start db ",0
