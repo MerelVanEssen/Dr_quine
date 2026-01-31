@@ -1,16 +1,19 @@
 NAME1 = Colleen
 NAME2 = Grace
+NAME3 = Sully
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 
 SRC1 = Colleen.c
 SRC2 = Grace.c
+SRC3 = Sully.c
 
 OBJ1 = $(SRC1:.c=.o)
 OBJ2 = $(SRC2:.c=.o)
+OBJ3 = $(SRC3:.c=.o)
 
-all: ${NAME1} ${NAME2}
+all: ${NAME1} ${NAME2} ${NAME3}
 
 ${NAME1}: ${OBJ1}
 	${CC} ${CFLAGS} ${OBJ1} -o ${NAME1}
@@ -18,13 +21,16 @@ ${NAME1}: ${OBJ1}
 ${NAME2}: ${OBJ2}
 	${CC} ${CFLAGS} ${OBJ2} -o ${NAME2}
 
+${NAME3}: ${OBJ3}
+	${CC} ${CFLAGS} ${OBJ3} -o ${NAME3}
+
 %.o: %.c
 	${CC} -c ${CFLAGS} $< -o $@
 
 clean:
-	rm -rf ${OBJ1} ${OBJ2}
+	rm -rf ${OBJ1} ${OBJ2} ${OBJ3}
 
 fclean: clean
-	rm -rf ${NAME1} ${NAME2}
+	rm -rf ${NAME1} ${NAME2} Grace_kid.c ${NAME3} Sully_*
 
 re: fclean all
